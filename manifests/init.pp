@@ -1,36 +1,34 @@
-# modules/skeleton/manifests/init.pp - manage skeleton stuff
-# Copyright (C) 2007 admin@immerda.ch
-# GPLv3
+#
+# avahi module
+#
+# Copyright 2008, Puzzle ITC
+# Marcel Härry haerry+puppet(at)puzzle.ch
+# Simon Josi josi+puppet(at)puzzle.ch
+#
+# This program is free software; you can redistribute 
+# it and/or modify it under the terms of the GNU 
+# General Public License version 3 as published by 
+# the Free Software Foundation.
+#
 
-# modules_dir { "skeleton": }
-
-class skeleton {
-    case $operatingsystem {
-        gentoo: { include skeleton::gentoo }
-        default: { include skeleton::base }
-    }
+class avahi {
+    include avahi::base
 }
 
-class skeleton::base {
-    package{'skeleton':
-        ensure => installed,
+class avahi::base {
+    package{'avahi':
+        ensure => present,
     }
-
-    service{skeleton:
+    file{'/etc/init.d/avahi-daemon':
+        source => "puppet://${server}/avahi/init.d/${operatingsystem}/avahi-daemon",
+        require => Package['avahi'],
+        before => Service['avahi-daemon'],
+        owner => root, group => 0, mode => 0755;
+    }
+    service{'avahi-daemon':
         ensure => running,
         enable => true,
-        #hasstatus => true, #fixme!
-        require => Package[skeleton],
+        hasstatus => true,
+        require => Package[avahi],
     }
-
-}
-
-class skeleton::gentoo inherits skeleton::base {
-    Package[skeleton]{
-        category => 'some-category',
-    }
-
-    #conf.d file if needed
-    # needs module gentoo
-    #gentoo::etcconfd { skeleton: require => "Package[skeleton]", notify => "Service[skeleton]"}
 }
