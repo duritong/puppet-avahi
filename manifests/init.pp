@@ -11,7 +11,7 @@
 # the Free Software Foundation.
 #
 class avahi {
-  case $operatingsystem {
+  case $::operatingsystem {
     centos: { include avahi::centos }
     default: { include avahi::base }
   }
